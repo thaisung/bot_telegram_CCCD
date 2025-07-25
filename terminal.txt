@@ -1,0 +1,5 @@
+pip3 install python-telegram-bot==20.3
+pip3 install nest_asyncio
+
+
+nohup python3 bot_cccd.py > log.txt 2>&1 &
