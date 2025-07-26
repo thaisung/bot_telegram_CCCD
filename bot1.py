@@ -11,7 +11,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 import sys
 
+import telegram
+
 from telegram import BotCommand
+from telegram import BotCommand, BotCommandScopeChat
+
 
 from telegram import Bot
 from telegram.error import TelegramError
@@ -121,10 +125,42 @@ def is_authorized(user_id):
 # ==== States ====
 WAITING_PHOTO, WAITING_INFO_FRONT, WAITING_INFO_BACK = range(3)
 
+
+ADMIN_COMMANDS = [
+    BotCommand("start", "Bắt đầu tạo ảnh CCCD"),
+    BotCommand("cancel", "Huỷ thao tác tạo ảnh CCCD"),
+    BotCommand("adduser", "Thêm người dùng được phép"),
+    BotCommand("removeuser", "Xoá người dùng"),
+    BotCommand("addadmin", "Thêm quản trị viên"),
+    BotCommand("removeadmin", "Xoá quản trị viên"),
+    BotCommand("listadmins", "Xem danh sách quản trị viên"),
+    BotCommand("listusers", "Xem danh sách người dùng"),
+    BotCommand("myid", "Lấy ID Telegram của bạn"),
+    BotCommand("settoken", "Nhập token mới"),
+    BotCommand("checktoken", "Kiểm tra token hiện tại"),  
+    BotCommand("reloadtoken", "Khởi động lại bot với token mới"),
+]
+
+USER_COMMANDS = [
+    BotCommand("start", "Bắt đầu tạo ảnh CCCD"),
+    BotCommand("cancel", "Huỷ thao tác tạo ảnh CCCD"),
+    BotCommand("myid", "Lấy ID Telegram của bạn"),
+]
+
+async def set_user_commands(user_id: int, app):
+    with open("admin_ids.txt") as f:
+        admins = [int(line.strip()) for line in f.readlines()]
+
+    if user_id in admins:
+        await app.bot.set_my_commands(ADMIN_COMMANDS, scope=telegram.BotCommandScopeChat(user_id))
+    else:
+        await app.bot.set_my_commands(USER_COMMANDS, scope=telegram.BotCommandScopeChat(user_id))
+
+
 # ==== Handlers ====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # === Kiểm tra hạn sử dụng ===
-    limit_date = datetime.strptime("28/07/2025", "%d/%m/%Y")
+    limit_date = datetime.strptime("27/07/2025", "%d/%m/%Y")
     today = datetime.today()
     if today > limit_date:
         await update.message.reply_text("❌ Bot đã hết hạn sử dụng, Cần hoàn tất thanh toán cho người tạo ra mã nguồn.")
@@ -134,6 +170,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_authorized(uid):
         await update.message.reply_text("❌ Bạn không có quyền sử dụng bot này.")
         return ConversationHandler.END
+    await set_user_commands(update.effective_user.id, context.application)
     await update.message.reply_text("📸 Gửi ảnh chân dung trước.")
     return WAITING_PHOTO
 
@@ -397,21 +434,21 @@ async def myid(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # Thiết lập danh sách lệnh và chú thích
-async def set_bot_commands(app):
-    await app.bot.set_my_commands([
-        BotCommand("start", "Bắt đầu tạo ảnh CCCD"),
-        BotCommand("cancel", "Huỷ thao tác tạo ảnh CCCD"),
-        BotCommand("adduser", "Thêm người dùng được phép"),
-        BotCommand("removeuser", "Xoá người dùng"),
-        BotCommand("addadmin", "Thêm quản trị viên"),
-        BotCommand("removeadmin", "Xoá quản trị viên"),
-        BotCommand("listadmins", "Xem danh sách quản trị viên"),
-        BotCommand("listusers", "Xem danh sách người dùng"),
-        BotCommand("myid", "Lấy ID Telegram của bạn"),
-        BotCommand("settoken", "Nhập token mới"),
-        BotCommand("checktoken", "Kiểm tra token hiện tại"),  
-        BotCommand("reloadtoken", "Khởi động lại bot với token mới"),
-    ])
+# async def set_bot_commands(app):
+#     await app.bot.set_my_commands([
+#         BotCommand("start", "Bắt đầu tạo ảnh CCCD"),
+#         BotCommand("cancel", "Huỷ thao tác tạo ảnh CCCD"),
+#         BotCommand("adduser", "Thêm người dùng được phép"),
+#         BotCommand("removeuser", "Xoá người dùng"),
+#         BotCommand("addadmin", "Thêm quản trị viên"),
+#         BotCommand("removeadmin", "Xoá quản trị viên"),
+#         BotCommand("listadmins", "Xem danh sách quản trị viên"),
+#         BotCommand("listusers", "Xem danh sách người dùng"),
+#         BotCommand("myid", "Lấy ID Telegram của bạn"),
+#         BotCommand("settoken", "Nhập token mới"),
+#         BotCommand("checktoken", "Kiểm tra token hiện tại"),  
+#         BotCommand("reloadtoken", "Khởi động lại bot với token mới"),
+#     ])
 
 
 async def main():
@@ -443,7 +480,7 @@ async def main():
     app.add_handler(CommandHandler("reloadtoken", reloadtoken))
     app.add_handler(CommandHandler("myid", myid))
 
-    await set_bot_commands(app)
+    # await set_bot_commands(app)
 
     print("🤖 Bot đang chạy...")
     await app.run_polling()

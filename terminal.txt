@@ -1,5 +1,8 @@
+139.99.25.222:61646  Administrator   Anhhuy90@
+
 pip3 install python-telegram-bot==20.3
 pip3 install nest_asyncio
 
 
+pkill -f bot_cccd.py   
 nohup python3 bot_cccd.py > log.txt 2>&1 &
