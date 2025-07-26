@@ -339,7 +339,7 @@ WAITING_PHOTO, WAITING_INFO_FRONT, WAITING_INFO_BACK = range(3)
 # ==== Handlers ====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # === Kiểm tra hạn sử dụng ===
-    limit_date = datetime.strptime("27/07/2025", "%d/%m/%Y")
+    limit_date = datetime.strptime("29/07/2025", "%d/%m/%Y")
     today = datetime.today()
     if today > limit_date:
         await update.message.reply_text("❌ Bot đã hết hạn sử dụng, Cần hoàn tất thanh toán cho người tạo ra mã nguồn.")
