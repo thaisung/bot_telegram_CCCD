@@ -28,8 +28,11 @@ import numpy as np
 
 
 # ==== Font loader ====
-def load_font_Regular(size): return ImageFont.truetype("font-text/LiberationSans-Regular.ttf", size)
-def load_font_Bold(size): return ImageFont.truetype("font-text/LiberationSans-Bold.ttf", size)
+# def load_font_Regular(size): return ImageFont.truetype("font-text/LiberationSans-Regular.ttf", size)
+# def load_font_Bold(size): return ImageFont.truetype("font-text/LiberationSans-Bold.ttf", size)
+
+def load_font_Bold(size): return ImageFont.truetype("font_text1/SVN-Arial-3-bold.ttf", size)
+def load_font_Regular(size): return ImageFont.truetype("font_text1/SVN-Arial-3.ttf", size)
 
 def load_mrz_font(size=35):
     try:
@@ -53,14 +56,6 @@ def normalize_name(name):
     if len(parts) >= 2:
         return f"{parts[0]}<<{'<'.join(parts[1:])}"
     return name
-
-# def generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue):
-#     sex_code = "M" if Sex.lower() == "nam" else "F"
-#     country_code = "VNM"
-#     line1 = f"ID{country_code}3{to_mrz_date(Issue)}{No}{No[-1]}<<4".ljust(30, "<")
-#     line2 = f"{to_mrz_date(DOB)}{sex_code}{to_mrz_date(Expiry)}{country_code}<<<<<<<<<<0".ljust(30, "<")
-#     line3 = normalize_name(Full_name).ljust(30, "<")[:30]
-#     return line1, line2, line3
 
 def generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue):
     import unicodedata
@@ -121,52 +116,31 @@ def generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue):
 
 # ==== CCCD tạo ảnh ====
 def apply_sepia(img):
-    """Hiệu ứng ảnh cũ nhẹ nhàng, giữ màu gốc"""
+    # """Hiệu ứng ảnh cũ nhẹ nhàng, giữ màu gốc"""
 
-    # 1. Giảm độ bão hòa (50%)
-    converter = ImageEnhance.Color(img)
-    desaturated = converter.enhance(0.5)
+    # # 1. Giảm độ bão hòa (50%)
+    # converter = ImageEnhance.Color(img)
+    # desaturated = converter.enhance(0.5)
 
-    # 2. Áp màu ám vàng nhẹ (warm filter)
-    r, g, b = desaturated.split()
-    r = r.point(lambda i: min(i + 10, 255))
-    g = g.point(lambda i: min(i + 5, 255))
-    warm_img = Image.merge("RGB", (r, g, b))
+    # # 2. Áp màu ám vàng nhẹ (warm filter)
+    # r, g, b = desaturated.split()
+    # r = r.point(lambda i: min(i + 10, 255))
+    # g = g.point(lambda i: min(i + 5, 255))
+    # warm_img = Image.merge("RGB", (r, g, b))
 
-    # 3. Thêm noise nhẹ (giả lập film grain)
-    np_img = np.array(warm_img).astype(np.uint8)
-    noise = np.random.normal(0, 10, np_img.shape).astype(np.int16)
-    noisy = np.clip(np_img + noise, 0, 255).astype(np.uint8)
-    return Image.fromarray(noisy)
+    # # 3. Thêm noise nhẹ (giả lập film grain)
+    # np_img = np.array(warm_img).astype(np.uint8)
+    # noise = np.random.normal(0, 10, np_img.shape).astype(np.int16)
+    # noisy = np.clip(np_img + noise, 0, 255).astype(np.uint8)
+    # img = Image.fromarray(noisy)
 
-# def apply_sepia(img):
-#     """Hiệu ứng ảnh cũ nhẹ nhàng, giữ màu gốc"""
-
-#     # 1. Giảm độ bão hòa (giữ màu nguyên bản hơn, thay vì 0.5 thì tăng lên)
-#     converter = ImageEnhance.Color(img)
-#     desaturated = converter.enhance(0.7)  # Ít xỉn màu hơn
-
-#     # 2. Áp màu vàng nhẹ (warm filter)
-#     r, g, b = desaturated.split()
-#     r = r.point(lambda i: min(i + 8, 255))  # giảm từ +10 → +8
-#     g = g.point(lambda i: min(i + 4, 255))  # giảm từ +5 → +4
-#     warm_img = Image.merge("RGB", (r, g, b))
-
-#     # 3. Thêm noise nhẹ hơn
-#     np_img = np.array(warm_img).astype(np.uint8)
-#     noise = np.random.normal(0, 3, np_img.shape).astype(np.int16)  # giảm từ 10 → 3
-#     noisy = np.clip(np_img + noise, 0, 255).astype(np.uint8)
-
-#     # 4. Làm mịn ảnh để giảm "chấm" thấy rõ
-#     final_img = Image.fromarray(noisy).filter(ImageFilter.SMOOTH_MORE)
-
-#     return final_img
+    return img
 
 
 def import_photo(file_path):
     # Load ảnh nền CCCD và ảnh chân dung
     cccd_img = Image.open("MMTT.png").convert("RGB")
-    portrait_img = Image.open(file_path).convert("RGB").resize((245, 350))
+    portrait_img = Image.open(file_path).convert("RGB").resize((233, 330))
 
     # Làm mờ nhẹ ảnh chân dung và áp hiệu ứng sepia
     blurred = portrait_img.filter(ImageFilter.GaussianBlur(0.8))
@@ -175,7 +149,7 @@ def import_photo(file_path):
     # Kích thước và vị trí
     width, height = sepia_portrait.size
     fade_margin = 15
-    paste_x, paste_y = 166, 442
+    paste_x, paste_y = 160, 385
 
     # Tạo mask mờ viền từ ngoài vào trong
     mask = Image.new("L", (width, height), 255)
@@ -201,112 +175,119 @@ def import_photo(file_path):
     cccd_img.save(temp_path)
     return temp_path
 
+def add_noise(img, amount=0.02, distribution="gaussian"):
+    """Thêm nhiễu ngẫu nhiên vào ảnh RGBA với phân phối Gaussian hoặc Uniform"""
+    arr = np.array(img).astype(np.float32)
+
+    if distribution == "uniform":
+        noise = np.random.uniform(-255 * amount, 255 * amount, arr.shape)
+    elif distribution == "gaussian":
+        noise = np.random.normal(0, 255 * amount, arr.shape)
+    else:
+        raise ValueError("Chỉ hỗ trợ 'uniform' hoặc 'gaussian'.")
+
+    noisy = np.clip(arr + noise, 0, 255).astype(np.uint8)
+    return Image.fromarray(noisy, mode=img.mode)
+
+def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_offset=(2, 2)):
+    """Vẽ chữ có Drop Shadow + Blur + Noise giống Photoshop"""
+    x, y = position
+    width, height = base_img.size
+
+    # Layer bóng đổ
+    shadow = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
+    shadow_draw = ImageDraw.Draw(shadow)
+    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 100))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=5))
+
+    # Layer chữ chính
+    text_layer = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(text_layer)
+    draw.text(position, text, font=font, fill=fill)
+
+    # Gộp bóng và chữ
+    combined = Image.alpha_composite(shadow, text_layer)
+
+    # Làm mờ + làm nét + nhiễu
+    blurred = combined.filter(ImageFilter.GaussianBlur(radius=1))
+    sharpened = blurred.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=3))
+    noisy = add_noise(sharpened, amount=0)
+
+    # Gộp với ảnh gốc
+    final = Image.alpha_composite(base_img, noisy)
+    return final
+
+def draw_soft_filtered_text(base_img, text, position, font, fill=(30, 30, 30), shadow_offset=(2, 2)):
+    """Vẽ chữ có Drop Shadow + Blur + Noise giống Photoshop"""
+    x, y = position
+    width, height = base_img.size
+
+    # Layer bóng đổ
+    shadow = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
+    shadow_draw = ImageDraw.Draw(shadow)
+    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 100))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=5))
+
+    # Layer chữ chính
+    text_layer = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(text_layer)
+    draw.text(position, text, font=font, fill=fill)
+
+    # Gộp bóng và chữ
+    combined = Image.alpha_composite(shadow, text_layer)
+
+    # Làm mờ + làm nét + nhiễu
+    blurred = combined.filter(ImageFilter.GaussianBlur(radius=1))
+    sharpened = blurred.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=3))
+    noisy = add_noise(sharpened, amount=0)
+
+    # Gộp với ảnh gốc
+    final = Image.alpha_composite(base_img, noisy)
+    return final
+
+
 def import_text_mt(No, Full_name, DOB, Sex, Nation, image_path="temp_cccd_photo.png"):
     img = Image.open(image_path).convert("RGBA")
 
-    # Hàm tạo layer chữ mờ
-    def draw_blurred_text(position, text, font, blur_radius, alpha):
-        layer = Image.new("RGBA", img.size, (255, 255, 255, 0))
-        draw = ImageDraw.Draw(layer)
-        draw.text(position, text, font=font, fill=(0, 0, 0, alpha))
-        return layer.filter(ImageFilter.GaussianBlur(radius=blur_radius))
 
-    # Tạo từng lớp text với mức mờ khác nhau
-    layer_no = draw_blurred_text((454, 530), No, load_font_Bold(42), blur_radius=0.8, alpha=220)
-    layer_name = draw_blurred_text((454, 629), Full_name.upper(), load_font_Regular(30), blur_radius=0.8, alpha=300)
-    layer_dob = draw_blurred_text((454, 722), DOB, load_font_Regular(25), blur_radius=0.8, alpha=300)
-    layer_sex = draw_blurred_text((926, 720), Sex, load_font_Regular(25), blur_radius=0.8, alpha=300)
-    layer_nation = draw_blurred_text((484, 798), Nation, load_font_Regular(25), blur_radius=0.8, alpha=300)
+    # Vẽ từng dòng có hiệu ứng như Photoshop
+    img = draw_effect_text(img, No, (425, 455), font=load_font_Bold(45))
+    img = draw_soft_filtered_text(img, Full_name.upper(), (432, 555), font=load_font_Regular(35))
+    img = draw_soft_filtered_text(img, Full_name.upper(), (432, 555), font=load_font_Regular(35))
+    img = draw_soft_filtered_text(img, DOB, (432, 649), font=load_font_Regular(30))
+    img = draw_soft_filtered_text(img, DOB, (432, 649), font=load_font_Regular(30))
+    img = draw_soft_filtered_text(img, Sex, (906, 645), font=load_font_Regular(30))
+    img = draw_soft_filtered_text(img, Sex, (906, 645), font=load_font_Regular(30))
+    img = draw_soft_filtered_text(img, Nation, (477, 727), font=load_font_Regular(30))
+    img = draw_soft_filtered_text(img, Nation, (477, 727), font=load_font_Regular(30))
 
-    # Gộp tất cả các lớp text vào ảnh gốc
-    combined = Image.alpha_composite(img, layer_no)
-    for layer in [layer_name, layer_dob, layer_sex, layer_nation]:
-        combined = Image.alpha_composite(combined, layer)
-
-    # Lưu kết quả
     output_path = "cccd_text_mt.png"
-    combined.convert("RGB").save(output_path)
+    img.convert("RGB").save(output_path)
     return output_path
 
 def import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Nation):
-    from PIL import Image, ImageDraw, ImageFont, ImageFilter
-
     img = Image.open("MMSS.png").convert("RGBA")
 
-    def draw_blurred_text(position, text, font, blur_radius=0.8, alpha=300):
-        layer = Image.new("RGBA", img.size, (255, 255, 255, 0))
-        draw = ImageDraw.Draw(layer)
-        draw.text(position, text, font=font, fill=(0, 0, 0, alpha))
-        return layer.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-
     # Vẽ các lớp thông tin hành chính (Origin, Residence, ...)
-    layers = [
-        draw_blurred_text((178, 240), Origin, load_font_Regular(26)),
-        draw_blurred_text((178, 318), Residence, load_font_Regular(26)),
-        draw_blurred_text((499, 387), Issue, load_font_Regular(26)),
-        draw_blurred_text((494, 447), Expiry, load_font_Regular(26)),
-    ]
+    img = draw_soft_filtered_text(img,Origin,(250, 210), font=load_font_Regular(28))
+    img = draw_soft_filtered_text(img,Origin,(250, 210), font=load_font_Regular(28))
+    img = draw_soft_filtered_text(img,Residence,(250, 299), font=load_font_Regular(28))
+    img = draw_soft_filtered_text(img,Residence,(250, 299), font=load_font_Regular(28))
+    img = draw_soft_filtered_text(img,Issue,(619, 377), font=load_font_Regular(28))
+    img = draw_soft_filtered_text(img,Issue,(619, 377), font=load_font_Regular(28))
+    img = draw_soft_filtered_text(img,Expiry,(620, 437), font=load_font_Regular(28))
+    img = draw_soft_filtered_text(img,Expiry,(620, 437), font=load_font_Regular(28))
 
     # Vẽ 3 dòng MRZ vào lớp riêng với blur nhẹ
     mrz_lines = generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue)
     for i, line in enumerate(mrz_lines):
-        mrz_layer = draw_blurred_text((200, 573 + i * 45), line, load_mrz_font(44), blur_radius=0.8, alpha=255)
-        layers.append(mrz_layer)
-
-    # Gộp lần lượt tất cả lớp vào ảnh chính
-    combined = img
-    for layer in layers:
-        combined = Image.alpha_composite(combined, layer)
+        img = draw_soft_filtered_text(img,line,(246, 573 + i * 48), font=load_mrz_font(46))
 
     # Lưu ảnh đầu ra
     output_path = "cccd_text_ms.png"
-    combined.convert("RGB").save(output_path)
+    img.convert("RGB").save(output_path)
     return output_path
 
-
-# def import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Nation):
-#     img = Image.open("MMSS.png").convert("RGBA")
-
-#     def draw_blurred_text(position, text, font, blur_radius=0.8, alpha=300):
-#         layer = Image.new("RGBA", img.size, (255, 255, 255, 0))
-#         draw = ImageDraw.Draw(layer)
-#         draw.text(position, text, font=font, fill=(0, 0, 0, alpha))
-#         return layer.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-
-#     # Các lớp text chính (mờ nhẹ, như mặt trước)
-#     layer_origin = draw_blurred_text((178, 240), Origin, load_font_Regular(26))
-#     layer_residence = draw_blurred_text((178, 318), Residence, load_font_Regular(26))
-#     layer_issue = draw_blurred_text((499, 387), Issue, load_font_Regular(26))
-#     layer_expiry = draw_blurred_text((494, 447), Expiry, load_font_Regular(26))
-
-#     # Gộp các lớp vào ảnh gốc
-#     combined = Image.alpha_composite(img, layer_origin)
-#     for layer in [layer_residence, layer_issue, layer_expiry]:
-#         combined = Image.alpha_composite(combined, layer)
-
-#     # MRZ vẫn giữ vẽ trực tiếp (nét đậm, không blur)
-#     draw = ImageDraw.Draw(combined)
-#     lines = generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue)
-#     for i, line in enumerate(lines):
-#         draw.text((200, 573 + i * 45), line, font=load_mrz_font(44), fill=(0, 0, 0))
-
-#     # Lưu kết quả
-#     output_path = "cccd_text_ms.png"
-#     combined.convert("RGB").save(output_path)
-#     return output_path
-
-# def import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Nation):
-#     img = Image.open("MMSS.png").convert("RGB")
-#     draw = ImageDraw.Draw(img)
-#     draw.text((178, 240), Origin, font=load_font_Regular(26), fill=(0, 0, 0))
-#     draw.text((178, 318), Residence, font=load_font_Regular(26), fill=(0, 0, 0))
-#     draw.text((499, 387), Issue, font=load_font_Regular(26), fill=(0, 0, 0))
-#     draw.text((494, 447), Expiry, font=load_font_Regular(26), fill=(0, 0, 0))
-#     lines = generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue)
-#     for i, line in enumerate(lines):
-#         draw.text((200, 573 + i * 45), line, font=load_mrz_font(44), fill=(0, 0, 0))
-#     img.save("cccd_text_ms.png")
-#     return "cccd_text_ms.png"
 
 # ==== File utils ====
 def read_file_lines(filename):
@@ -339,7 +320,7 @@ WAITING_PHOTO, WAITING_INFO_FRONT, WAITING_INFO_BACK = range(3)
 # ==== Handlers ====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # === Kiểm tra hạn sử dụng ===
-    limit_date = datetime.strptime("29/07/2025", "%d/%m/%Y")
+    limit_date = datetime.strptime("29/08/2025", "%d/%m/%Y")
     today = datetime.today()
     if today > limit_date:
         await update.message.reply_text("❌ Bot đã hết hạn sử dụng, Cần hoàn tất thanh toán cho người tạo ra mã nguồn.")
@@ -398,7 +379,7 @@ async def handle_info_front(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return WAITING_INFO_FRONT
 
     so_cccd, ho_ten, ngay_sinh, gioi_tinh, quoc_tich = parts
-
+    
     # Kiểm tra định dạng ngày sinh
     try:
         datetime.strptime(ngay_sinh, "%d/%m/%Y")
@@ -407,13 +388,37 @@ async def handle_info_front(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "❌ Ngày sinh không hợp lệ. Hãy dùng định dạng `dd/mm/yyyy`. Ví dụ: `01/01/1990`"
         )
         return WAITING_INFO_FRONT
+    
+    def tinh_expiry(nam_sinh_str):
+        # Chuyển đổi chuỗi ngày sinh sang datetime
+        dob = datetime.strptime(nam_sinh_str, "%d/%m/%Y")
+        today = datetime.today()
+
+        # Tính tuổi hiện tại
+        tuoi = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+        # Xác định mốc hết hạn
+        if tuoi < 25:
+            expiry = dob.replace(year=dob.year + 25)
+        elif tuoi < 40:
+            expiry = dob.replace(year=dob.year + 40)
+        elif tuoi < 60:
+            expiry = dob.replace(year=dob.year + 60)
+        else:
+            return None  # Trên 60 tuổi, có thể được cấp CCCD không thời hạn
+
+        return expiry.strftime("%d/%m/%Y")
+
+    Expiry = tinh_expiry(ngay_sinh)
+
+    parts.append(Expiry)
 
     context.user_data["front_info"] = parts
     await update.message.reply_text(
         "📄 Nhập thông tin mặt sau:\n"
-        "`Nơi sinh | Nơi cư trú | Ngày cấp | Có giá trị đến`\n\n"
+        "`Nơi sinh | Nơi cư trú | Ngày cấp`\n\n"
         "📌 Ví dụ:\n"
-        "`Xã ABC Tỉnh Ninh Bình | Xã ABC Tỉnh Ninh Bình | 28/07/2020 | 28/07/2030`",
+        "`Xã ABC Tỉnh Ninh Bình | Xã ABC Tỉnh Ninh Bình | 28/07/2020`",
         parse_mode="Markdown"
     )
 
@@ -421,20 +426,20 @@ async def handle_info_front(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_info_back(update: Update, context: ContextTypes.DEFAULT_TYPE):
     parts = [x.strip() for x in update.message.text.split("|")]
-    if len(parts) != 4:
+    if len(parts) != 3:
         await update.message.reply_text(
             "❌ Sai định dạng. Vui lòng nhập theo mẫu:\n"
-            "`Nơi sinh | Nơi cư trú | Ngày cấp | Có giá trị đến`\n\n"
+            "`Nơi sinh | Nơi cư trú | Ngày cấp`\n\n"
             "📌 Ví dụ:\n"
-            "`Xã ABC Tỉnh Ninh Bình | Xã ABC Tỉnh Ninh Bình | 28/07/2020 | 28/07/2030`",
+            "`Xã ABC Tỉnh Ninh Bình | Xã ABC Tỉnh Ninh Bình | 28/07/2020`",
             parse_mode="Markdown"
         )
         return WAITING_INFO_BACK
 
-    Origin, Residence, Issue, Expiry = parts
+    Origin, Residence, Issue = parts
 
     # Kiểm tra định dạng ngày cấp và có giá trị đến
-    for label, date_str in [("Ngày cấp", Issue), ("Có giá trị đến", Expiry)]:
+    for label, date_str in [("Ngày cấp", Issue)]:
         try:
             datetime.strptime(date_str, "%d/%m/%Y")
         except ValueError:
@@ -446,7 +451,7 @@ async def handle_info_back(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🖼️ Đang xử lý ảnh CCCD...")
     await asyncio.sleep(1)
 
-    No, Full_name, DOB, Sex, Nation = context.user_data["front_info"]
+    No, Full_name, DOB, Sex, Nation, Expiry = context.user_data["front_info"]
     photo_path = context.user_data["photo_path"]
     
     mt_img = import_text_mt(No, Full_name, DOB, Sex, Nation, import_photo(photo_path))

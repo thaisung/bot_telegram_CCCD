@@ -54,14 +54,6 @@ def normalize_name(name):
         return f"{parts[0]}<<{'<'.join(parts[1:])}"
     return name
 
-# def generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue):
-#     sex_code = "M" if Sex.lower() == "nam" else "F"
-#     country_code = "VNM"
-#     line1 = f"ID{country_code}3{to_mrz_date(Issue)}{No}{No[-1]}<<4".ljust(30, "<")
-#     line2 = f"{to_mrz_date(DOB)}{sex_code}{to_mrz_date(Expiry)}{country_code}<<<<<<<<<<0".ljust(30, "<")
-#     line3 = normalize_name(Full_name).ljust(30, "<")[:30]
-#     return line1, line2, line3
-
 def generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue):
     import unicodedata
 
@@ -138,29 +130,6 @@ def apply_sepia(img):
     noise = np.random.normal(0, 10, np_img.shape).astype(np.int16)
     noisy = np.clip(np_img + noise, 0, 255).astype(np.uint8)
     return Image.fromarray(noisy)
-
-# def apply_sepia(img):
-#     """Hiệu ứng ảnh cũ nhẹ nhàng, giữ màu gốc"""
-
-#     # 1. Giảm độ bão hòa (giữ màu nguyên bản hơn, thay vì 0.5 thì tăng lên)
-#     converter = ImageEnhance.Color(img)
-#     desaturated = converter.enhance(0.7)  # Ít xỉn màu hơn
-
-#     # 2. Áp màu vàng nhẹ (warm filter)
-#     r, g, b = desaturated.split()
-#     r = r.point(lambda i: min(i + 8, 255))  # giảm từ +10 → +8
-#     g = g.point(lambda i: min(i + 4, 255))  # giảm từ +5 → +4
-#     warm_img = Image.merge("RGB", (r, g, b))
-
-#     # 3. Thêm noise nhẹ hơn
-#     np_img = np.array(warm_img).astype(np.uint8)
-#     noise = np.random.normal(0, 3, np_img.shape).astype(np.int16)  # giảm từ 10 → 3
-#     noisy = np.clip(np_img + noise, 0, 255).astype(np.uint8)
-
-#     # 4. Làm mịn ảnh để giảm "chấm" thấy rõ
-#     final_img = Image.fromarray(noisy).filter(ImageFilter.SMOOTH_MORE)
-
-#     return final_img
 
 
 def import_photo(file_path):
@@ -264,49 +233,6 @@ def import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Na
     return output_path
 
 
-# def import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Nation):
-#     img = Image.open("MMSS.png").convert("RGBA")
-
-#     def draw_blurred_text(position, text, font, blur_radius=0.8, alpha=300):
-#         layer = Image.new("RGBA", img.size, (255, 255, 255, 0))
-#         draw = ImageDraw.Draw(layer)
-#         draw.text(position, text, font=font, fill=(0, 0, 0, alpha))
-#         return layer.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-
-#     # Các lớp text chính (mờ nhẹ, như mặt trước)
-#     layer_origin = draw_blurred_text((178, 240), Origin, load_font_Regular(26))
-#     layer_residence = draw_blurred_text((178, 318), Residence, load_font_Regular(26))
-#     layer_issue = draw_blurred_text((499, 387), Issue, load_font_Regular(26))
-#     layer_expiry = draw_blurred_text((494, 447), Expiry, load_font_Regular(26))
-
-#     # Gộp các lớp vào ảnh gốc
-#     combined = Image.alpha_composite(img, layer_origin)
-#     for layer in [layer_residence, layer_issue, layer_expiry]:
-#         combined = Image.alpha_composite(combined, layer)
-
-#     # MRZ vẫn giữ vẽ trực tiếp (nét đậm, không blur)
-#     draw = ImageDraw.Draw(combined)
-#     lines = generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue)
-#     for i, line in enumerate(lines):
-#         draw.text((200, 573 + i * 45), line, font=load_mrz_font(44), fill=(0, 0, 0))
-
-#     # Lưu kết quả
-#     output_path = "cccd_text_ms.png"
-#     combined.convert("RGB").save(output_path)
-#     return output_path
-
-# def import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Nation):
-#     img = Image.open("MMSS.png").convert("RGB")
-#     draw = ImageDraw.Draw(img)
-#     draw.text((178, 240), Origin, font=load_font_Regular(26), fill=(0, 0, 0))
-#     draw.text((178, 318), Residence, font=load_font_Regular(26), fill=(0, 0, 0))
-#     draw.text((499, 387), Issue, font=load_font_Regular(26), fill=(0, 0, 0))
-#     draw.text((494, 447), Expiry, font=load_font_Regular(26), fill=(0, 0, 0))
-#     lines = generate_mrz(No, Full_name, DOB, Sex, Nation, Expiry, Issue)
-#     for i, line in enumerate(lines):
-#         draw.text((200, 573 + i * 45), line, font=load_mrz_font(44), fill=(0, 0, 0))
-#     img.save("cccd_text_ms.png")
-#     return "cccd_text_ms.png"
 
 # ==== File utils ====
 def read_file_lines(filename):
@@ -339,7 +265,7 @@ WAITING_PHOTO, WAITING_INFO_FRONT, WAITING_INFO_BACK = range(3)
 # ==== Handlers ====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # === Kiểm tra hạn sử dụng ===
-    limit_date = datetime.strptime("27/07/2025", "%d/%m/%Y")
+    limit_date = datetime.strptime("29/07/2025", "%d/%m/%Y")
     today = datetime.today()
     if today > limit_date:
         await update.message.reply_text("❌ Bot đã hết hạn sử dụng, Cần hoàn tất thanh toán cho người tạo ra mã nguồn.")
