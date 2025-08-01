@@ -189,7 +189,7 @@ def add_noise(img, amount=0.02, distribution="gaussian"):
     noisy = np.clip(arr + noise, 0, 255).astype(np.uint8)
     return Image.fromarray(noisy, mode=img.mode)
 
-def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_offset=(2, 2)):
+def draw_effect_text(base_img, text, position, font, fill=(40, 40, 40), shadow_offset=(1, 1)):
     """Vẽ chữ có Drop Shadow + Blur + Noise giống Photoshop"""
     x, y = position
     width, height = base_img.size
@@ -209,7 +209,7 @@ def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_o
     combined = Image.alpha_composite(shadow, text_layer)
 
     # Làm mờ + làm nét + nhiễu
-    blurred = combined.filter(ImageFilter.GaussianBlur(radius=1))
+    blurred = combined.filter(ImageFilter.GaussianBlur(radius=0.9))
     sharpened = blurred.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=3))
     noisy = add_noise(sharpened, amount=0)
 
@@ -217,7 +217,7 @@ def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_o
     final = Image.alpha_composite(base_img, noisy)
     return final
 
-def draw_soft_filtered_text(base_img, text, position, font, fill=(30, 30, 30), shadow_offset=(2, 2)):
+def draw_soft_filtered_text(base_img, text, position, font, fill=(40, 40, 40), shadow_offset=(1, 1)):
     """Vẽ chữ có Drop Shadow + Blur + Noise giống Photoshop"""
     x, y = position
     width, height = base_img.size
@@ -237,7 +237,7 @@ def draw_soft_filtered_text(base_img, text, position, font, fill=(30, 30, 30), s
     combined = Image.alpha_composite(shadow, text_layer)
 
     # Làm mờ + làm nét + nhiễu
-    blurred = combined.filter(ImageFilter.GaussianBlur(radius=1))
+    blurred = combined.filter(ImageFilter.GaussianBlur(radius=0.9))
     sharpened = blurred.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=3))
     noisy = add_noise(sharpened, amount=0)
 
