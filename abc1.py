@@ -125,7 +125,7 @@ def add_noise(img, amount=0.02, distribution="gaussian"):
     noisy = np.clip(arr + noise, 0, 255).astype(np.uint8)
     return Image.fromarray(noisy, mode=img.mode)
 
-def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_offset=(2, 2)):
+def draw_effect_text(base_img, text, position, font, fill=(40, 40, 40), shadow_offset=(1, 1)):
     """Vẽ chữ có Drop Shadow + Blur + Noise giống Photoshop"""
     x, y = position
     width, height = base_img.size
@@ -133,7 +133,7 @@ def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_o
     # Layer bóng đổ
     shadow = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
     shadow_draw = ImageDraw.Draw(shadow)
-    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 100))
+    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 50))
     shadow = shadow.filter(ImageFilter.GaussianBlur(radius=5))
 
     # Layer chữ chính
@@ -145,7 +145,7 @@ def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_o
     combined = Image.alpha_composite(shadow, text_layer)
 
     # Làm mờ + làm nét + nhiễu
-    blurred = combined.filter(ImageFilter.GaussianBlur(radius=1))
+    blurred = combined.filter(ImageFilter.GaussianBlur(radius=0.9))
     sharpened = blurred.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=3))
     noisy = add_noise(sharpened, amount=0)
 
@@ -153,7 +153,7 @@ def draw_effect_text(base_img, text, position, font, fill=(30, 30, 30), shadow_o
     final = Image.alpha_composite(base_img, noisy)
     return final
 
-def draw_soft_filtered_text(base_img, text, position, font, fill=(30, 30, 30), shadow_offset=(2, 2)):
+def draw_soft_filtered_text(base_img, text, position, font, fill=(40, 40, 40), shadow_offset=(1, 1)):
     """Vẽ chữ có Drop Shadow + Blur + Noise giống Photoshop"""
     x, y = position
     width, height = base_img.size
@@ -161,7 +161,7 @@ def draw_soft_filtered_text(base_img, text, position, font, fill=(30, 30, 30), s
     # Layer bóng đổ
     shadow = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
     shadow_draw = ImageDraw.Draw(shadow)
-    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 100))
+    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 50))
     shadow = shadow.filter(ImageFilter.GaussianBlur(radius=5))
 
     # Layer chữ chính
@@ -173,7 +173,7 @@ def draw_soft_filtered_text(base_img, text, position, font, fill=(30, 30, 30), s
     combined = Image.alpha_composite(shadow, text_layer)
 
     # Làm mờ + làm nét + nhiễu
-    blurred = combined.filter(ImageFilter.GaussianBlur(radius=1))
+    blurred = combined.filter(ImageFilter.GaussianBlur(radius=0.9))
     sharpened = blurred.filter(ImageFilter.UnsharpMask(radius=1, percent=150, threshold=3))
     noisy = add_noise(sharpened, amount=0)
 
@@ -230,9 +230,9 @@ Full_name='Nguyễn Bình Long'
 DOB='20/09/1996'
 Sex='Nam' 
 Nation='Việt Nam'
-# import_text_mt(No, Full_name, DOB, Sex, Nation, image_path="temp_cccd_photo.png")
+import_text_mt(No, Full_name, DOB, Sex, Nation, image_path="temp_cccd_photo.png")
 Origin= 'Khu Phố Hiệp Tâm 2'
 Residence = 'Khu Phố Hiệp Tâm 2'
 Expiry = '20/09/1996'
 Issue = '20/09/1996'
-import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Nation)
+# import_text_ms(Full_name, No, Origin, Residence, Expiry, Issue, DOB, Sex, Nation)

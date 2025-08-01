@@ -197,7 +197,7 @@ def draw_effect_text(base_img, text, position, font, fill=(40, 40, 40), shadow_o
     # Layer bóng đổ
     shadow = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
     shadow_draw = ImageDraw.Draw(shadow)
-    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 100))
+    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 50))
     shadow = shadow.filter(ImageFilter.GaussianBlur(radius=5))
 
     # Layer chữ chính
@@ -225,7 +225,7 @@ def draw_soft_filtered_text(base_img, text, position, font, fill=(40, 40, 40), s
     # Layer bóng đổ
     shadow = Image.new("RGBA", base_img.size, (0, 0, 0, 0))
     shadow_draw = ImageDraw.Draw(shadow)
-    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 100))
+    shadow_draw.text((x + shadow_offset[0], y + shadow_offset[1]), text, font=font, fill=(0, 0, 0, 50))
     shadow = shadow.filter(ImageFilter.GaussianBlur(radius=5))
 
     # Layer chữ chính
